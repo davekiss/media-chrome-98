@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://unpkg.com/98.css">
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="https://cdn.jsdelivr.net/npm/media-chrome@4/+esm"></script>
+</head>
+
+<body>
+    <div class="window">
+        <div class="title-bar" onmousedown="handleMouseDown(event)">
+            <div class="title-bar-text">Mux + Media Chrome</div>
+            <div class="title-bar-controls">
+                <button aria-label="Close"></button>
+            </div>
+        </div>
+        <div class="window-body">
+            <media-controller>
+                <video slot="media" src="https://stream.mux.com/DS00Spx1CV902MCtPj5WknGlR102V5HFkDe/high.mp4"></video>
+                <media-control-bar>
+                    <media-play-button>
+                        <img src="img/play.png" slot="play" />
+                        <img src="img/pause.png" slot="pause" />
+                    </media-play-button>
+                    <media-mute-button>
+                        <img src="img/muted.png" slot="off" />
+                        <img src="img/unmuted-1.png" slot="low" />
+                        <img src="img/unmuted-1.png" slot="high" />
+                        <img src="img/unmuted-1.png" slot="medium" />
+                    </media-mute-button>
+                    <media-volume-range></media-volume-range>
+                    <media-time-range></media-time-range>
+                    <media-fullscreen-button>
+                        <img src="img/maximize.png" slot="enter" />
+                    </media-fullscreen-button>
+                </media-control-bar>
+            </media-controller>
+        </div>
+        <div class="status-bar">
+            <p class="status-bar-field">Press F1 for help</p>
+            <p class="status-bar-field">Slide 1</p>
+            <p class="status-bar-field" id="cpu-usage">CPU Usage: 14%</p>
+        </div>
+    </div>
+    <script>
+        function updateCPU() {
+            const usage = Math.floor(Math.random() * 100);
+            document.getElementById('cpu-usage').textContent = `CPU Usage: ${usage}%`;
+            setTimeout(updateCPU, 1000);
+        }
+        updateCPU();
+
+        let isDragging = false;
+        let currentX;
+        let currentY;
+        let initialX;
+        let initialY;
+
+        function handleMouseDown(e) {
+            isDragging = true;
+            const window = e.target.closest('.window');
+
+            initialX = e.clientX - window.offsetLeft;
+            initialY = e.clientY - window.offsetTop;
+
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+        }
+
+        function handleMouseMove(e) {
+            if (isDragging) {
+                e.preventDefault();
+                const window = document.querySelector('.window');
+
+                currentX = e.clientX - initialX;
+                currentY = e.clientY - initialY;
+
+                window.style.left = currentX + 'px';
+                window.style.top = currentY + 'px';
+            }
+        }
+
+        function handleMouseUp() {
+            isDragging = false;
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        }
+    </script>
+</body>
+
+</html>
