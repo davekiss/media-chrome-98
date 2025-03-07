@@ -11,9 +11,24 @@ body {
     width: 100%;
     height: 100%;
     max-width: 800px;
-    height: 500px;
+    height: 545px;
     position: absolute;
     cursor: url('img/pointer.svg'), auto;
+}
+
+.divider {
+    width: 2px;
+    height: 30px;
+    align-self: center;
+    background-image: linear-gradient(to right, #808080 50%, #fff 50%);
+}
+
+media-control-bar {
+    --media-control-background: #c0c0c0;
+    --media-control-hover-background: #c0c0c0;
+    background-color: #c0c0c0;
+    width: 100%;
+    align-items: center;
 }
 
 media-controller {
@@ -23,16 +38,36 @@ media-controller {
 
 media-time-range {
     --media-range-bar-color: linear-gradient(90deg, navy 16px, transparent 0 2px) repeat 0 0 / 18px 100%;
-    --media-range-track-height: 32px;
+    --media-range-track-height: 28px;
     --media-range-padding: 4px;
     --media-range-thumb-opacity: 0;
     --_focus-visible-box-shadow: inset -2px -2px #dfdfdf,inset 2px 2px grey;
   }
 
-media-fullscreen-button,
+media-time-display {
+    -webkit-font-smoothing: none;
+    font-family: "Pixelated MS Sans Serif", Arial;
+    font-size: 11px;
+    color: #000;
+    font-weight: bold;
+}
+
+/* media-fullscreen-button,
 media-play-button,
 media-mute-button,
 media-volume-range {
+    box-shadow: inset -2px -2px #dfdfdf,inset 2px 2px grey;
+} */
+
+.title-bar-controls media-fullscreen-button {
+    padding: 0;
+}
+
+media-seek-forward-button:active,
+media-seek-backward-button:active,
+media-play-button:not([mediapaused]),
+media-fullscreen-button:not([mediacontroller]):active,
+media-mute-button:active {
     box-shadow: inset -2px -2px #dfdfdf,inset 2px 2px grey;
 }
 
@@ -45,4 +80,11 @@ media-volume-range::part(thumb) {
     box-shadow: none;
     border: none;
     border-radius: 0;
+}
+
+media-loading-indicator {
+    --media-loading-indicator-icon-width: 64px;
+    --media-loading-indicator-icon-height: 64px;
+    filter: invert(100%);
+    mix-blend-mode: screen;
 }

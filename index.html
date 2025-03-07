@@ -12,34 +12,54 @@
 
 <body>
     <canvas id="trailCanvas" style="position: fixed; top: 0; left: 0; pointer-events: none;"></canvas>
+    <canvas id="selectionCanvas" style="position: fixed; top: 0; left: 0;"></canvas>
     <div class="window">
         <div class="title-bar" onmousedown="handleMouseDown(event)">
             <div class="title-bar-text">Mux + Media Chrome</div>
             <div class="title-bar-controls">
+                <media-fullscreen-button notooltip mediacontroller="mediaController">
+                    <button aria-label="Maximize" slot="enter"></button>
+                    <button aria-label="Restore" slot="exit"></button>
+                </media-fullscreen-button>
+
                 <button aria-label="Close" onclick="closeWindow(event)"></button>
             </div>
         </div>
         <div class="window-body">
-            <media-controller>
+            <media-controller id="mediaController">
                 <video slot="media" src="https://stream.mux.com/DS00Spx1CV902MCtPj5WknGlR102V5HFkDe/high.mp4"></video>
-                <media-control-bar>
-                    <media-play-button>
-                        <img src="img/play.png" slot="play" />
-                        <img src="img/pause.png" slot="pause" />
-                    </media-play-button>
-                    <media-mute-button>
-                        <img src="img/muted.png" slot="off" />
-                        <img src="img/unmuted-1.png" slot="low" />
-                        <img src="img/unmuted-1.png" slot="high" />
-                        <img src="img/unmuted-1.png" slot="medium" />
-                    </media-mute-button>
-                    <media-volume-range></media-volume-range>
-                    <media-time-range></media-time-range>
-                    <media-fullscreen-button>
-                        <img src="img/maximize.png" slot="enter" />
-                    </media-fullscreen-button>
-                </media-control-bar>
+                <media-loading-indicator slot="centered-chrome">
+                    <img width="16" height="16" src="img/loading.gif" slot="icon"/>
+                </media-loading-indicator>
             </media-controller>
+
+            <media-control-bar mediacontroller="mediaController">
+                <media-play-button>
+                    <img src="img/play.png" slot="play" />
+                    <img src="img/pause.png" slot="pause" />
+                </media-play-button>
+                    <div class="divider"></div>
+                <media-seek-backward-button>
+                    <img src="img/seek-backward.png" slot="icon" />
+                  </media-seek-backward-button>
+                  <media-seek-forward-button>
+                    <img src="img/seek-forward.png" slot="icon" />
+                  </media-seek-forward-button>
+                  <div class="divider"></div>
+                  <media-fullscreen-button>
+                    <img src="img/maximize.png" slot="enter" />
+                </media-fullscreen-button>
+                <div class="divider"></div>
+                <media-mute-button>
+                    <img src="img/muted.png" slot="off" />
+                    <img src="img/unmuted-1.png" slot="low" />
+                    <img src="img/unmuted-1.png" slot="high" />
+                    <img src="img/unmuted-1.png" slot="medium" />
+                </media-mute-button>
+                <media-volume-range></media-volume-range>
+                <media-time-range></media-time-range>
+                <media-time-display showduration></media-time-display>
+            </media-control-bar>
         </div>
         <div class="status-bar">
             <p class="status-bar-field">Press F1 for help</p>
@@ -55,6 +75,81 @@
         }
         updateCPU();
 
+        const video = document.querySelector('video');
+        video.addEventListener('loadedmetadata', () => {
+            console.log(video.duration);
+        });
+
+
+        // Function to randomly pause the video after 1-5 seconds when playing
+        function setupRandomPause() {
+            const mediaController = document.querySelector('media-controller');
+            const video = document.querySelector('video');
+            const loadingIndicator = document.querySelector('media-loading-indicator');
+            let pauseTimeout;
+            let unpauseTimeout;
+
+            // Watch for when media has played
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'mediahasplayed') {
+                        if (mediaController.hasAttribute('mediahasplayed') && !mediaController.hasAttribute('mediapaused')) {
+                            // Clear any existing timeouts
+                            clearTimeout(pauseTimeout);
+                            clearTimeout(unpauseTimeout);
+
+                            // Set a random timeout between 1-5 seconds
+                            const randomTime = Math.floor(Math.random() * 3000) + 1000; // 1000-4000ms
+
+                            pauseTimeout = setTimeout(() => {
+                                // Pause the video
+                                video.pause();
+
+                                // Show loading indicator
+                                loadingIndicator.style.setProperty('--media-loading-indicator-opacity', '1');
+
+                                // Set timeout to unpause after 1-2 seconds
+                                const unpauseTime = Math.floor(Math.random() * 1000) + 1000; // 1000-2000ms
+                                unpauseTimeout = setTimeout(() => {
+                                    video.play();
+                                }, unpauseTime);
+                            }, randomTime);
+                        }
+                    } else if (mutation.type === 'attributes' && mutation.attributeName === 'mediapaused') {
+                        // When unpaused, restart the cycle and hide the loading indicator
+                        if (!mediaController.hasAttribute('mediapaused')) {
+                            loadingIndicator.style.removeProperty('--media-loading-indicator-opacity');
+
+                            // Restart the random pause cycle
+                            if (mediaController.hasAttribute('mediahasplayed')) {
+                                clearTimeout(pauseTimeout);
+                                clearTimeout(unpauseTimeout);
+
+                                const randomTime = Math.floor(Math.random() * 3000) + 1000;
+
+                                pauseTimeout = setTimeout(() => {
+                                    video.pause();
+                                    loadingIndicator.style.setProperty('--media-loading-indicator-opacity', '1');
+
+                                    // Set timeout to unpause after 1-2 seconds
+                                    const unpauseTime = Math.floor(Math.random() * 1000) + 1000; // 1000-2000ms
+                                    unpauseTimeout = setTimeout(() => {
+                                        video.play();
+                                    }, unpauseTime);
+                                }, randomTime);
+                            }
+                        }
+                    }
+                });
+            });
+
+            // Start observing the media controller for attribute changes
+            observer.observe(mediaController, { attributes: true });
+        }
+
+        // Initialize the random pause functionality
+        setupRandomPause();
+
         let isDragging = false;
         let currentX;
         let currentY;
@@ -65,15 +160,64 @@
         // Setup canvas
         const canvas = document.getElementById('trailCanvas');
         const ctx = canvas.getContext('2d');
-        
+
+        // Setup selection canvas
+        const selectionCanvas = document.getElementById('selectionCanvas');
+        const selectionCtx = selectionCanvas.getContext('2d');
+
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+            selectionCanvas.width = window.innerWidth;
+            selectionCanvas.height = window.innerHeight;
         }
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
+
         // Create audio element
         const dragSound = new Audio('audio/chord.mp3');
+
+        // Selection box variables
+        let isSelecting = false;
+        let selectionStartX;
+        let selectionStartY;
+        let selectionEndX;
+        let selectionEndY;
+
+        selectionCanvas.addEventListener('mousedown', (e) => {
+            isSelecting = true;
+            selectionStartX = e.clientX;
+            selectionStartY = e.clientY;
+        });
+
+        selectionCanvas.addEventListener('mousemove', (e) => {
+            if (isSelecting) {
+                selectionEndX = e.clientX;
+                selectionEndY = e.clientY;
+                drawSelectionBox();
+            }
+        });
+
+        selectionCanvas.addEventListener('mouseup', () => {
+            isSelecting = false;
+            selectionCtx.clearRect(0, 0, selectionCanvas.width, selectionCanvas.height);
+        });
+
+        function drawSelectionBox() {
+            selectionCtx.clearRect(0, 0, selectionCanvas.width, selectionCanvas.height);
+
+            const width = selectionEndX - selectionStartX;
+            const height = selectionEndY - selectionStartY;
+
+            // Draw the dashed border
+            selectionCtx.setLineDash([2, 2]);
+            selectionCtx.strokeStyle = '#000';
+            selectionCtx.strokeRect(selectionStartX, selectionStartY, width, height);
+
+            // Draw semi-transparent fill
+            selectionCtx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            selectionCtx.fillRect(selectionStartX, selectionStartY, width, height);
+        }
 
         function captureWindowState(windowElement) {
             return new Promise((resolve) => {
@@ -141,7 +285,7 @@
             // Stop sound
             dragSound.pause();
             dragSound.currentTime = 0;
-            
+
             // Clear canvas after drag ends
             // setTimeout(() => {
             //     ctx.clearRect(0, 0, canvas.width, canvas.height);
