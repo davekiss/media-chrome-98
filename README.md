@@ -4,6 +4,8 @@
 
 A nostalgic Windows 98-style video player built with [Media Chrome](https://www.media-chrome.org/) and [Mux](https://mux.com/). This project combines retro aesthetics with modern web video technology for a delightfully throwback user experience.
 
+**[Try the demo](https://davekiss.github.io/media-chrome-98/)**
+
 So authentic, you'll instinctively want to defrag your hard drive.
 
 ## What's it do?
