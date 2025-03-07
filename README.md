@@ -28,6 +28,7 @@ The project uses:
 - HTML5 Canvas for the cursor trails and selection box effects
 - HTML2Canvas for capturing window states during dragging
 - Custom SVG cursors and pixel-perfect icons
+- Plain old HTML, CSS, and JavaScript for the UI
 
 ## Easter Eggies
 
