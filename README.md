@@ -1,5 +1,7 @@
 # Windows 98 Video Player
 
+<img src="./img/preview@2x.png" alt="Windows 98 Video Player" width="600" />
+
 A nostalgic Windows 98-style video player built with [Media Chrome](https://www.media-chrome.org/) and [Mux](https://mux.com/). This project combines retro aesthetics with modern web video technology for a delightfully throwback user experience.
 
 So authentic, you'll instinctively want to defrag your hard drive.
